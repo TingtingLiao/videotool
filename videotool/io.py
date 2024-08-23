@@ -1,6 +1,5 @@
-import os 
-import os.path as osp 
-import cv2
+import os  
+import imageio 
 from PIL import Image
 from rich.progress import track
 
@@ -9,35 +8,27 @@ logger = logging.getLogger(__name__)
 coloredlogs.install(level='DEBUG', logger=logger) 
 
 
-def load_mp4(video_path):
-    '''
-    load video frames from mp4 file
-        Args:
-        ----- 
-        video_path: str
-            path to the video file
-          
-        Returns:
-        -----
-        frames: list
-    '''
-    assert osp.exists(video_path), logger.error(f"video {video_path} not found!")
-      
-    frames = []
-    cap = cv2.VideoCapture(video_path) 
- 
-    while True:
-        ret, frame = cap.read()
-        
-        if not ret:
-            break
-  
-        frames.append(frame)
+def load_video(video_path, n_frames=-1, return_fps=False):
+    reader = imageio.get_reader(video_path, "ffmpeg")
+    fps = reader.get_meta_data()['fps']
 
-    return frames
+    ret = []
+    for idx, frame_rgb in enumerate(reader):
+        if n_frames > 0 and idx >= n_frames:
+            break
+        ret.append(frame_rgb)
+
+    reader.close()
+
+    if return_fps:
+        return ret, fps
+    
+    return ret 
 
 
 def export_video(images, wfp, **kwargs):
+    '''
+    '''
     fps = kwargs.get('fps', 30)
     video_format = kwargs.get('format', 'mp4')  # default is mp4 format
     codec = kwargs.get('codec', 'libx264')  # default is libx264 encoding
