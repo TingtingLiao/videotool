@@ -15,5 +15,7 @@ setup(
         'numpy',
         'tqdm', 
         'opencv-python',  
+        'rich', 
+        'imageio'
     ],
 )
