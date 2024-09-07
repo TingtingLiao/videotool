@@ -16,6 +16,7 @@ setup(
         'tqdm', 
         'opencv-python',  
         'rich', 
-        'imageio'
+        'imageio',
+        'imageio-ffmpeg'
     ],
 )
