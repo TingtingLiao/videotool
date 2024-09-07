@@ -52,8 +52,23 @@ def export_video(images, wfp, **kwargs):
     writer.close()
 
 
-
 def export_gif(frames, save_path, loop=0):
     images = [Image.fromarray(f[..., ::-1]) for f in frames]
     images[0].save(save_path, save_all=True, append_images=images[1:], loop=loop, duration=100)
- 
+
+
+def video2gif(video_fp, fps=30, size=256):
+    if osp.exists(video_fp):
+        d = osp.split(video_fp)[0]
+        fn = prefix(osp.basename(video_fp))
+        palette_wfp = osp.join(d, 'palette.png')
+        gif_wfp = osp.join(d, f'{fn}.gif')
+        # generate the palette
+        cmd = f'ffmpeg -i "{video_fp}" -vf "fps={fps},scale={size}:-1:flags=lanczos,palettegen" "{palette_wfp}" -y'
+        exec_cmd(cmd)
+        # use the palette to generate the gif
+        cmd = f'ffmpeg -i "{video_fp}" -i "{palette_wfp}" -filter_complex "fps={fps},scale={size}:-1:flags=lanczos[x];[x][1:v]paletteuse" "{gif_wfp}" -y'
+        exec_cmd(cmd)
+        return gif_wfp
+    else:
+        raise FileNotFoundError(f"video_fp: {video_fp} not exists!")
