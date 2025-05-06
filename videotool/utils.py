@@ -1,3 +1,4 @@
+import cv2 
 import numpy as np 
 
 
@@ -25,3 +26,11 @@ def vstack_videos(video_list):
     for frames in zip(*video_list):
         stacked_frames.append(np.vstack(frames))
     return stacked_frames
+
+def resize_video(frame_list, size):
+    '''
+    '''
+    frame_list = [
+        cv2.resize(f, size) for f in frame_list
+    ]
+    return frame_list  
