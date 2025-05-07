@@ -29,8 +29,26 @@ def vstack_videos(video_list):
 
 def resize_video(frame_list, size):
     '''
+    Resize a list of video frames to a specified size while preserving aspect ratio
+    if one of the dimensions is set to <= 0.
+
+    Args:
+        frame_list (list of np.ndarray): List of video frames (HWC format).
+        size (tuple): (height, width). If one dimension <= 0, it will be computed to preserve aspect ratio.
+
+    Returns:
+        list of np.ndarray: Resized video frames.
     '''
-    frame_list = [
-        cv2.resize(f, size) for f in frame_list
-    ]
-    return frame_list  
+    h, w = size
+    hh, ww = frame_list[0].shape[:2]
+
+    if h <= 0 and w > 0:
+        h = int(w / ww * hh)
+    elif h > 0 and w <= 0:
+        w = int(h / hh * ww)
+    elif h <= 0 and w <= 0:
+        raise ValueError("At least one of height or width must be > 0.")
+    # else: both h and w are given and valid
+
+    frame_list = [cv2.resize(f, (w, h)) for f in frame_list]
+    return frame_list
